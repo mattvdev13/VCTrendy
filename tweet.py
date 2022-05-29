@@ -1,8 +1,10 @@
 
 from logging import exception
+from site import enablerlcompleter
 from urllib import response
 import requests
 import json
+from wordfreq import zipf_frequency
 
 
 class tweetlists:
@@ -38,7 +40,7 @@ def get_tweets(ID, username):
             return {"none"}
         #print(self.tweets)
 
-def processtweets(dict, data, exclusion_list):
+def processtweets(dict, data): #, exclusion_list
     #if dict is not {}:
     #    return Exception
     
@@ -47,12 +49,14 @@ def processtweets(dict, data, exclusion_list):
    
     # take each word from lst and pass it to the method count.
     for elements in lst:
-        count(elements,dict, exclusion_list)
+        count(elements,dict) #, exclusion_list
 
     return dict
 
-def count(elements,dict,exclusion_list):
+def count(element,dict): #, exclusion_list
     
+    elements = element.lower()
+
     if elements[-1] == '.':
         elements = elements[0:len(elements) - 1]
    
@@ -65,7 +69,7 @@ def count(elements,dict,exclusion_list):
     # if the dictionary does not have the key as "elements" 
     # then create a key "elements" and assign its value to 1.
     else:
-        if elements not in exclusion_list:
+        if zipf_frequency(elements.lower(), 'en', "large") <=6: #not in exclusion_list
             dict.update({elements: 1})
     
     return dict
@@ -104,9 +108,11 @@ def main():
     #API_key_secret=credslist[1]
     #global bearer_token
     #bearer_token = credslist[2]
-
+    dictionarytest = {}
     test = tweetlists('pmarca')
-
+    for each in test.tweets:
+        results = processtweets(dictionarytest, each["text"])
+    print(results)
     #url = create_url()
     #json_response = connect_to_endpoint(url)
     #print(json.dumps(json_response, indent=4, sort_keys=True))
